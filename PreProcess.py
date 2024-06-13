@@ -4,25 +4,20 @@ import numpy as np
 import math
 # tăng màu đen của ảnh
 def adjust_brightness_gray(imgColor):
-    if(90<imgColor.mean()<170):
-        img_gray_lp = cv2.cvtColor(imgColor, cv2.COLOR_BGR2GRAY)
-        _, imgColor = cv2.threshold(img_gray_lp, 200, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-        imgColor= cv2.erode(imgColor, (3, 3)) # type: ignore
-        imgColor = cv2.dilate(imgColor, (3, 3)) # type: ignore
-                         
-    else:
-        imgColor=cv2.cvtColor(imgColor, cv2.COLOR_BGR2GRAY)
-        # Lấy chiều cao và chiều rộng của ảnh
-        height, width = imgColor.shape
-        # Duyệt qua từng pixel trong ảnh
-        for i in range(height):
-            for j in range(width):
-                pixel_value = imgColor[i, j]
-
-                # Nếu pixel có giá trị trên 200, tăng 10
-                if pixel_value < 200:
-                    imgColor[i, j] -= 60 
-    return imgColor
+    # Convert the input image to grayscale
+    img_gray = cv2.cvtColor(imgColor, cv2.COLOR_BGR2GRAY)
+    
+    # Apply a binary threshold using Otsu's method
+    _, img_binary = cv2.threshold(img_gray, 200, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    
+    # Define a kernel for morphological operations
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
+    
+    # Perform erosion followed by dilation (opening operation)
+    img_eroded = cv2.erode(img_binary, kernel, iterations=1)
+    img_dilated = cv2.dilate(img_eroded, kernel, iterations=1)
+    
+    return img_dilated
 # hiển thị hình ảnh dưới dạng ảnh màu
 def showImgRGBMode(img,TitleIMG): 
     plt.figure(figsize=(10, 5))
